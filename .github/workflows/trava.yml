@@ -1,0 +1,24 @@
+name: trava
+on:
+  push:
+    branches: [master]
+jobs:
+  quem:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          USERNAME: ${{ github.event.head_commit.committer.username }}
+          EMAIL: ${{ github.event.head_commit.committer.email }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: printf 'committer.username=%s\ncommitter.email=%s\nmensagem=%s\n' "$USERNAME" "$EMAIL" "$MSG"
+  # Mesmo `if` do job `test` do ci.yml da plataforma (só a cláusula de push).
+  conferencia:
+    if: >
+      (github.event_name != 'push' ||
+      (github.ref == 'refs/heads/master' &&
+      github.event.head_commit.committer.username != 'web-flow') ||
+      (github.ref != 'refs/heads/master' &&
+      !startsWith(github.event.head_commit.message, 'Merge pull request')))
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "conferência RODOU"
